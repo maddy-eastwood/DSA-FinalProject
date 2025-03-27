@@ -1,0 +1,8 @@
+body {
+    background-color: #E8F8FF;
+    font-family: Rubik, Arial;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
