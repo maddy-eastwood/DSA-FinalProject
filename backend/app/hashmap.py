@@ -13,6 +13,10 @@ class Status(Enum):
     Deleted = 2
 
 
+"""
+fetch(api.com/quadratic/has/website1.com)
+"""
+
 # Hash table - Quadratic Probing
 class HashTable:
     def __init__(self, loadFactor=0.7):
