@@ -9,6 +9,8 @@ First create a virtual environment (you only need to do this once):
 Each time you want to use the backend, be sure to activate the virtual environment:
 
 `source .venv/bin/activate`
+for Windows:
+`.\.venv\Scripts\Activate`
 
 Now you can install the dependencies for this project in your virtual environment:
 
@@ -31,3 +33,8 @@ To connect wtih front end, run:
 U.S. Department of Agriculture (USDA), Agricultural Research Service. FoodData
 Central: USDA Global Branded Food Products Database. Version Current: April 2024.
 Internet: fdc.nal.usda.gov.
+
+#Windows
+Allow scripts to run as admin
+`Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process`
+
