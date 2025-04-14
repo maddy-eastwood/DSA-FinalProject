@@ -44,6 +44,8 @@ def find_products(description: str, brand: str = None):
     # fuzzy search
     if brand is not None:
         brand_matches: tuple[str, int | float] = process.extract(brand, all_brands, limit=25, scorer=fuzz.ratio)
+    else:
+        brand_matches = []
 
     description_matches: tuple[str, int | float] = process.extract(description, description_choices, limit=10000, scorer=fuzz.partial_token_sort_ratio)
 

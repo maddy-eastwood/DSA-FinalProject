@@ -198,7 +198,6 @@ def get_data_for_fuzzysearch() -> tuple[dict, set]:
         food_entries = session.exec(statement).all()
     description_map = defaultdict(list)
     all_brands = set()
-    # description_map = dict()
     for food in food_entries:
         # fuzzy_search_string = food.description + ' ' + food.brand
         description_map[food.description].append((food.brand, food.id))
