@@ -1,28 +1,13 @@
 from enum import Enum
 from sympy import nextprime
+from app.hashing.quadratic_probing import FoodContainer
 
-#python time
-
-class Food:
-    def __init__(self, ID, description, brand, protein, calories = 0):
-        self.ID = ID
-        self.description = description
-        self.brand = brand
-        self.protein = protein
-        self.calories = calories
-    def __repr__(self):
-        return f"ID: {self.ID} : {self.description}, {self.calories} cal, {self.protein}g protein"
-
-    def __str__(self):
-        return f"ID: {self.ID} : {self.description}, {self.calories} cal, {self.protein}g protein"
-
-
-
+# Separate Chaining 
 class HashMap:
     def __init__(self):
         self.size = 0
-        self.capacity = 10
-        self.currentCap = 10
+        self.capacity = nextprime(100000)
+        self.currentCap = self.capacity
         self.loadFactor = 0.7
         self.hashMap = [
             [] for i in range(self.capacity)
@@ -31,7 +16,7 @@ class HashMap:
 
     #calculates the index where the food object should go in hashmap
     def hashFunction(self, foodObj) -> int:
-        return int(foodObj.ID) % self.capacity
+        return foodObj.ID % self.capacity
 
     def setMap(self):
         self.currentCap = self.capacity
@@ -53,7 +38,7 @@ class HashMap:
         self.setMap()
 
     #inserting into the hashmap with separate chaining
-    def insert(self, foodObj)->bool:
+    def insert(self, foodObj: FoodContainer)->bool:
         if self.has(foodObj):
             return False
         index = self.hashFunction(foodObj)
@@ -65,10 +50,20 @@ class HashMap:
             self.rehash()
         return True
 
+    # def has(self, foodObj):
+    #     for i in range(self.currentCap):
+    #         if len(self.hashMap[i]) != 0:
+    #             for j in range(len(self.hashMap[i])):
+    #                 if self.hashMap[i][j] == foodObj:
+    #                     return True
+    #     return False
+
     def has(self, foodObj):
-        for i in range(self.currentCap):
-            if len(self.hashMap[i]) != 0:
-                for j in range(len(self.hashMap[i])):
-                    if self.hashMap[i][j] == foodObj:
-                        return True
+        index = self.hashFunction(foodObj)
+        for i in range(len(self.hashMap[index])):
+            if self.hashMap[index][i].ID == foodObj.ID:
+                return foodObj
         return False
+    
+    def getSize(self):
+        return self.size

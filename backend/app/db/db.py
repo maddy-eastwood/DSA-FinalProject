@@ -8,7 +8,8 @@ import pandas as pd
 import os, sys
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 import time
-from app.quadraticprobing.hashmap import HashTable, FoodContainer
+from app.hashing.quadratic_probing import HashTable, FoodContainer
+from app.hashing.separate_chaining import HashMap
 from collections import defaultdict
 
 class Food(SQLModel, table=True):
@@ -129,7 +130,7 @@ def populate_hash_table() -> tuple[HashTable, dict, set]:
         start_time = time.time()
         statement = select(Food)
         food_entries = session.exec(statement).all()
-        hash_table = HashTable()
+        hash_table_qp = HashTable()
         description_map = defaultdict(list)
         all_brands = set()
         # description_map = dict()
@@ -141,15 +142,70 @@ def populate_hash_table() -> tuple[HashTable, dict, set]:
                                            food.protein,
                                            food.sugar,
                                            food.brand)
-            hash_table.insert(food.id, food_to_insert)
+            hash_table_qp.insert(food.id, food_to_insert)
             # fuzzy_search_string = food.description + ' ' + food.brand
             description_map[food.description].append((food.brand, food.id))
             all_brands.add(food.brand)
         end_time = time.time()
-        print(f"size of hash table: {hash_table.getSize()}")
+        print(f"size of hash table: {hash_table_qp.getSize()}")
         print(f" size of description_to_id_map: {len(description_map)}")
         print(f"time to read db & construct hash table: {end_time - start_time}")
-        return hash_table, description_map, all_brands
+        return hash_table_qp, description_map, all_brands
+    
+def populate_hash_table_qp() -> tuple[HashTable, float]:
+    with Session(engine) as session:
+        statement = select(Food)
+        food_entries = session.exec(statement).all()
+    start_time = time.time()
+    hash_table_qp = HashTable()
+    for food in food_entries:
+        food_to_insert = FoodContainer(food.id,
+                                    food.description,
+                                    food.calories,
+                                    food.protein,
+                                    food.sugar,
+                                    food.brand)
+        hash_table_qp.insert(food.id, food_to_insert)
+    end_time = time.time()
+    time_taken = end_time - start_time
+    print(f"size of hash table: {hash_table_qp.getSize()}")
+    print(f"time to construct hash table with qp: {time_taken}")
+    return hash_table_qp, time_taken
+    
+def populate_hash_map_sc() -> tuple[HashMap, float]:
+    with Session(engine) as session:
+        statement = select(Food)
+        food_entries = session.exec(statement).all()
+    start_time = time.time()
+    hash_map_sc = HashMap()
+    for food in food_entries:
+        food_to_insert = FoodContainer(food.id,
+                                    food.description,
+                                    food.calories,
+                                    food.protein,
+                                    food.sugar,
+                                    food.brand)
+        hash_map_sc.insert(food_to_insert)
+    end_time = time.time()
+    time_taken = end_time - start_time
+    print(f"size of hash table: {hash_map_sc.getSize()}")
+    print(f"time to construct hash map with sc: {time_taken}")
+    return hash_map_sc, time_taken
+
+def get_data_for_fuzzysearch() -> tuple[dict, set]:
+    with Session(engine) as session:
+        statement = select(Food)
+        food_entries = session.exec(statement).all()
+    description_map = defaultdict(list)
+    all_brands = set()
+    # description_map = dict()
+    for food in food_entries:
+        # fuzzy_search_string = food.description + ' ' + food.brand
+        description_map[food.description].append((food.brand, food.id))
+        all_brands.add(food.brand)
+    print(f" size of description_to_id_map: {len(description_map)}")
+    print(f"size of unique brands set: {len(all_brands)}")
+    return description_map, all_brands
 
 
 if __name__ == '__main__':
