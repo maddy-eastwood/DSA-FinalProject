@@ -35,27 +35,15 @@ def read_root():
 def read_root(key: int):
     return {"result": hash_table_qp.has(key)}
 
+@app.get("/separatechaining/{key}")
+def getFood(key: int):
+    return {"result": hash_map_sc.has(key)}
+
 @app.get("/fuzzysearch")
 def find_products(description: str, brand: str = None):
     # fuzzy search
-
-    # brand_matches = process.extract(brand, brand_choices, limit=25, scorer=fuzz.token_sort_ratio)
-    # best_brand_match = brand_matches[0][0]
-
-    # matched_descriptions = []
-    # for description, product in description_to_id_map.items():
-    #     for brand, product_id in product:
-    #         if brand.lower() == best_brand_match.lower():
-    #             matched_descriptions.append((description, product_id))
-    # description_result = [desc for desc, _ in matched_descriptions]
-    # desc_matches = process.extract(description, description_result, limit=25, scorer=fuzz.partial_token_sort_ratio)
-
-    # result = process.extract(description, description_choices, limit=25, scorer=fuzz.token_sort_ratio)
-
     if brand is not None:
         brand_matches: tuple[str, int | float] = process.extract(brand, all_brands, limit=25, scorer=fuzz.ratio)
-    else:
-        brand_matches = []
 
     description_matches: tuple[str, int | float] = process.extract(description, description_choices, limit=10000, scorer=fuzz.partial_token_sort_ratio)
 
