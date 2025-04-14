@@ -3,6 +3,7 @@ from app.db.db import populate_hash_table_qp, populate_hash_map_sc, get_data_for
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from thefuzz import fuzz, process
+import time
 
 app = FastAPI()
 
@@ -50,8 +51,6 @@ def find_products(description: str, brand: str = None):
     description_matches: tuple[str, int | float] = process.extract(description, description_choices, limit=10000, scorer=fuzz.partial_token_sort_ratio)
 
     brand_matches = [b[0] for b in brand_matches]
-    for b in brand_matches:
-        print(f"brand: {b}")
 
     result = []
 
@@ -75,3 +74,41 @@ def find_products(description: str, brand: str = None):
 @app.get("/items/{item_id}")
 def read_item(item_id: int, q: Union[str, None] = None):
     return {"item_id": item_id, "q": q}
+
+@app.get("/calculate_daily_nutrition")
+def calc_daily_nutrition(product_ids : list[int]) -> dict[str, float]:
+    calories_qp = 0.0
+    protein_qp = 0.0
+    sugar_qp = 0.0
+    calories_sc = 0.0
+    protein_sc = 0.0
+    sugar_sc = 0.0
+
+    start_time_qp = time.time() 
+    for id in product_ids:
+        food = hash_table_qp.has(id)
+        calories_qp  += food.calories
+        protein_qp += food.protein
+        sugar_qp += food.sugar
+    end_time_qp = time.time()
+    time_taken_qp = end_time_qp - start_time_qp
+
+
+    start_time_sc = time.time() 
+    for id in product_ids:
+        food = hash_map_sc.has(id)
+        calories_sc  += food.calories
+        protein_sc += food.protein
+        sugar_sc += food.sugar
+    end_time_sc = time.time()
+    time_taken_sc = end_time_sc - start_time_sc
+
+    result_dict = {
+        "calories": calories_qp,
+        "protein": protein_qp,
+        "sugar": sugar_qp,
+        "query_time_qp": time_taken_qp,
+        "query_time_sc": time_taken_sc
+    }
+
+    return result_dict

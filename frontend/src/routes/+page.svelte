@@ -7,7 +7,9 @@
 
     // these variables are used to get user's input for the brand they want to query
     let brandText = $state("")
-    let brandQuery = $state("");
+    let brandQuery = $state("")
+    let descriptionText = $state("")
+    let descriptionQuery = $state("")
 
     // the path will be fuzzysearch to go to the fuzzysearch endpoint
     // params will be the description and, optionally, the brand
@@ -38,7 +40,7 @@
 
     // this is used by the button "call fuzzy search"
     async function handleFuzz() {
-    result = await fuzzySearch("eggs", brandQuery);
+    result = await fuzzySearch(descriptionQuery, brandQuery);
   }
 
 </script>
@@ -52,8 +54,13 @@
 <input id="brand" type="text" bind:value={brandText}>
 <input onclick={() => (brandQuery = brandText)} type="submit"/>
 
+<label for="description">Description:</label>
+<input id="description" type="text" bind:value={descriptionText}>
+<input onclick={() => (descriptionQuery = descriptionText)} type="submit"/>
+
 <!-- rendering the results here -->
 <p>Brand to search: {brandQuery}</p>
+<p>Description to search: {descriptionQuery}</p>
 {#if result}
 <h1>Search Results</h1>
 <ul>
