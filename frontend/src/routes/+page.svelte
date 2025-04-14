@@ -1,24 +1,66 @@
-<script lang="ts">
-    let result = $state(0)
-    async function quadraticProbing() {
-        const backendUrl = 'http://localhost:8000/'
+<script lang="js">
+    let result = $state()
+
+    let brandText = $state("")
+    let brandQuery = $state("");
+
+    async function queryBackend(path, params) {
+        const backendUrl = `http://localhost:8000/${path}${params}`
         try {
         const fetchRequest = await fetch(backendUrl);
         if (fetchRequest.ok) {
             const body = await fetchRequest.json()
             console.log(body);
+            return body;
         }
         }
         catch (e) {
             console.error(e);
+            return null;
         }
     }
+
+    async function fuzzySearch(description, brand=null) {
+        if (brand != null) {
+            return queryBackend("fuzzysearch", `?description=${description}&brand=${brand}`)
+        } else {
+            return queryBackend("fuzzysearch", `?description=${description}`)
+        }
+    }
+
+    async function handleFuzz() {
+    result = await fuzzySearch("eggs", brandQuery);
+  }
+
 </script>
 
-<button onclick={quadraticProbing}>
-    call backend
+<button onclick={handleFuzz}>
+    call fuzzy search
 </button>
-<p>{result}</p>
+
+<label for="brand">Brand:</label>
+<input id="brand" type="text" bind:value={brandText}>
+<input onclick={() => (brandQuery = brandText)} type="submit"/>
+
+
+<p>Brand to search: {brandQuery}</p>
+{#if result}
+<h1>Search Results</h1>
+<ul>
+	{#each result.products as foodTuple}
+        <ul>
+            {console.log(foodTuple[0])}
+            <li>
+                <button>
+                    {foodTuple[0]}
+                </button>
+                </li>
+            <li>{foodTuple[1]}</li>
+            <!-- <li>{foodTuple[2]}</li> -->
+        </ul>
+	{/each}
+</ul>
+{/if}
 <style>
 
 
