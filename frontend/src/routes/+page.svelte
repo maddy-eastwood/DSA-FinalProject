@@ -4,16 +4,19 @@
     // result is a "dynamic" variable that holds the list of tuples as the result of fuzzysearch
     // basically, every time this variable gets updated in the code, svelte will rerender it to the screen
     let result = $state()
+    let calculationResult = $state()
 
     // these variables are used to get user's input for the brand they want to query
     let brandText = $state("")
     let brandQuery = $state("")
     let descriptionText = $state("")
     let descriptionQuery = $state("")
+    let productIds = $state([])
+
 
     // the path will be fuzzysearch to go to the fuzzysearch endpoint
     // params will be the description and, optionally, the brand
-    async function queryBackend(path, params) {
+    async function queryBackendGET(path, params) {
         const backendUrl = `http://localhost:8000/${path}${params}`
         try {
         const fetchRequest = await fetch(backendUrl);
@@ -29,19 +32,54 @@
         }
     }
 
+    async function queryBackendPOST(path, params){
+        const backendUrl = `http://localhost:8000/${path}`;
+        try {
+            const fetchRequest = await fetch(backendUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type':'application/json',
+                },
+                body: JSON.stringify(params)
+            });
+            if (fetchRequest.ok){
+                const body = await fetchRequest.json()
+                console.log("backend response", body);
+                return body;
+            }
+        }
+        catch (e){
+            console.error("error during fetch", e);
+            return null;
+        }
+    }
+
     // this will query the backend with the fuzzysearch path and necessary params
-    async function fuzzySearch(description, brand=null) {
-        if (brand != null) {
-            return queryBackend("fuzzysearch", `?description=${description}&brand=${brand}`)
+    async function fuzzySearch(description, brand) {
+        if (brand != "") {
+            return queryBackendGET("fuzzysearch", `?description=${description}&brand=${brand}`)
         } else {
-            return queryBackend("fuzzysearch", `?description=${description}`)
+            return queryBackendGET("fuzzysearch", `?description=${description}`)
         }
     }
 
     // this is used by the button "call fuzzy search"
     async function handleFuzz() {
-    result = await fuzzySearch(descriptionQuery, brandQuery);
-  }
+        result = await fuzzySearch(descriptionQuery, brandQuery);
+    }
+
+    function SelectProductId(id){
+        productIds = [...productIds, id];
+        console.log($state.snapshot(productIds));
+    }
+
+    async function calculateDailyNutrition(){
+        return queryBackendPOST("calculate_daily_nutrition", productIds);
+    }
+
+    async function handleCalculations(){
+        calculationResult = await calculateDailyNutrition();
+    }
 
 </script>
 
@@ -68,18 +106,37 @@
 	{#each result.products as foodTuple}
         <ul>
             {console.log(foodTuple[0])}
+            <li>{foodTuple[0]}</li>
+            <li>{foodTuple[1]}</li>
             <li>
                 <!-- basically we want to create a button that corresponds to this food object, then we want to add that product id (foodTuple[2]) to a list that will get send to our calculate results function (hasn't been written yet, it will basically take a list of product ids and it will query our hash tables and return the sums of the nutritional info and the time it took to query each hash table) -->
-                <button>
-                    {foodTuple[0]}
+                <button onclick={() => SelectProductId(foodTuple[2])}>
+                    select
                 </button>
                 </li>
-            <li>{foodTuple[1]}</li>
             <!-- <li>{foodTuple[2]}</li> -->
         </ul>
 	{/each}
 </ul>
 {/if}
+
+<button onclick={handleCalculations}>
+    calculate daily nutrition
+</button>
+
+{#if calculationResult}
+<p>Daily Results:</p>
+<ul>
+    <li>
+        protein: {calculationResult.protein}
+        calories: {calculationResult.calories}
+        sugar: {calculationResult.sugar}
+        time to query quadratic probing table: {calculationResult.query_time_qp}
+    </li>
+</ul>
+{/if}
+
+
 <style>
 
 
