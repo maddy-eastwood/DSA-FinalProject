@@ -32,6 +32,14 @@ description_choices = list(description_map.keys())
 def read_root():
     return {"Hello": "World"}
 
+@app.get("/buildtimeqp")
+def get_build_time_qp():
+    return {"build_time_qp": timer_qp}
+
+@app.get("/buildtimesc")
+def get_build_time_sc():
+    return {"build_time_sc": timer_sc}
+
 @app.get("/quadraticprobing/{key}")
 def read_root(key: int):
     return {"result": hash_table_qp.has(key)}
