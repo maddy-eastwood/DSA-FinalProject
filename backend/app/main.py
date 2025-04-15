@@ -75,7 +75,7 @@ def find_products(description: str, brand: str = None):
 def read_item(item_id: int, q: Union[str, None] = None):
     return {"item_id": item_id, "q": q}
 
-@app.get("/calculate_daily_nutrition")
+@app.post("/calculate_daily_nutrition")
 def calc_daily_nutrition(product_ids : list[int]) -> dict[str, float]:
     calories_qp = 0.0
     protein_qp = 0.0
