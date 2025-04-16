@@ -83,20 +83,20 @@
     }
 
     async function handleCalculations() {
-    const rawResult = await calculateDailyNutrition();
+        const rawResult = await calculateDailyNutrition();
 
-    // for rounding - it was being weird but this works
-    if (rawResult) {
-        if (typeof rawResult.query_time_qp === "number") {
-            rawResult.query_time_qp = rawResult.query_time_qp.toFixed(6) + " seconds";
+        // for rounding - if the result is a number, round and add seconds
+        if (rawResult) {
+            if (typeof rawResult.query_time_qp === "number") {
+                rawResult.query_time_qp = rawResult.query_time_qp.toFixed(6) + " seconds";
+            }
+
+            if (typeof rawResult.query_time_sc === "number") {
+                rawResult.query_time_sc = rawResult.query_time_sc.toFixed(6) + " seconds";
+            }
         }
-
-        if (typeof rawResult.query_time_sc === "number") {
-            rawResult.query_time_sc = rawResult.query_time_sc.toFixed(6) + " seconds";
-        }
-    }
-
-    calculationResult = rawResult;
+        //storing the result in calculation result
+        calculationResult = rawResult;
 }
 
 
@@ -143,7 +143,7 @@ fetchBuildTimeQP();
 
 <!--input section for user to type in a food brand and description -->
 <div class="input-section">
-  <div class="field-row">
+  <div class="brand-description-group">
     <!--group for entering the brand -->
     <div class="input-group">
       <label for="brand">Brand:</label>
@@ -168,7 +168,7 @@ fetchBuildTimeQP();
 
 
   <!--this button runs the fuzzy search to find matches based on input -->
-  <button class="btn-main" onclick={handleFuzz}>Find Specific Brand</button>
+  <button class="button-main" onclick={handleFuzz}>Find Specific Brand</button>
 </div>
 
 
@@ -176,14 +176,14 @@ fetchBuildTimeQP();
 <!--this part handles the nutrition calculation -->
 <div class="calculate-section">
     <!--button to calculate total nutrition based on selected foods -->
-  <button class="btn-main" onclick={handleCalculations}>Calculate Daily Nutrition</button>
+  <button class="button-main" onclick={handleCalculations}>Calculate Daily Nutrition</button>
 
   <!--only show the results if they exist -->
   {#if calculationResult}
     <div class="result-section">
       <p><strong>Daily Results:</strong></p>
       <ul>
-        <li>Calories: {calculationResult.calories}</li>
+        <li>Calories: {calculationResult.calories.toFixed(2)}</li>
         <li>Protein: {calculationResult.protein.toFixed(2)}g</li>
         <li>Sugar: {calculationResult.sugar.toFixed(2)}g</li>
       </ul>
@@ -195,7 +195,9 @@ fetchBuildTimeQP();
 <div class="build-time-section">
   <h3>Build Times</h3>
   <div class="build-box">
+    <!--span just holds the size of the text rather than div which is like a whole block-->
     <span>Quadratic Probing:</span>
+    <!--strong is just bolding it - also makes it treated as important by browsers rather than just using <b>-->
     <strong>{build_time_qp}</strong>
   </div>
   <div class="build-box">
@@ -234,8 +236,8 @@ fetchBuildTimeQP();
           <li><strong>Description:</strong> {foodTuple[0]}</li>
           <li>
             <!-- button to select the item -->
-            <button class="btn-select" onclick={() => SelectProductId(foodTuple[2])}>
-              <!--if it's already selected, show a checkmark - added this to make it more clear so they knew -->
+            <button class="button-select" onclick={() => SelectProductId(foodTuple[2])}>
+              <!--if it exists im prodict ids, change the button text from select to selected show a checkmark - added this to make it more clear so they knew -->
               {productIds.includes(foodTuple[2]) ? '✔ Selected' : 'Select'}
             </button>
           </li>
@@ -273,22 +275,22 @@ button:focus {
 }
 
 /*main action buttons - the ones that calculate big stuff */
-.btn-main {
+.button-main {
   background-color: #007BFF;
 }
 
-.btn-main:hover {
+.button-main:hover {
   background-color: #0056b3;
 }
 
 /*buttons for picking food items */
-.btn-select {
+.button-select {
   background-color: #f0ad4e;
   font-size: 14px;
   padding: 8px 14px;
 }
 
-.btn-select:hover {
+.button-select:hover {
   background-color: #ec971f;
 }
 
