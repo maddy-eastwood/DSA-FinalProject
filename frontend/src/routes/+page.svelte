@@ -140,6 +140,9 @@ fetchBuildTimeQP();
 
 </script>
 
+<!--showing current brand and description that will be used for searching -->
+<p><strong>Brand to search:</strong> {brandQuery}</p>
+<p><strong>Description to search:</strong>{descriptionQuery}</p>
 
 <!--input section for user to type in a food brand and description -->
 <div class="input-section">
@@ -218,10 +221,6 @@ fetchBuildTimeQP();
     <strong>{calculationResult?.query_time_sc}</strong>
   </div>
 </div>
-
-<!--showing current brand and description that will be used for searching -->
-<p><strong>Brand to search:</strong> {brandQuery}</p>
-<p><strong>Description to search:</strong>{descriptionQuery}</p>
 
 <!--if there are results - this will display them -->
 {#if result}
