@@ -4,11 +4,11 @@ from app.hashing.quadratic_probing import FoodContainer
 
 # Separate Chaining 
 class HashMap:
-    def __init__(self):
+    def __init__(self, loadFactor=0.5):
         self.size = 0
         self.capacity = nextprime(100000)
         self.currentCap = self.capacity
-        self.loadFactor = 0.5
+        self.loadFactor = loadFactor
         self.hashMap = [
             [] for i in range(self.capacity)
         ]
