@@ -124,33 +124,6 @@ def parse_and_create_foods():
             db_count += 1
         session.commit()
     print(f"Inserted {db_count} into food.db")
-
-def populate_hash_table() -> tuple[HashTable, dict, set]:
-    with Session(engine) as session:
-        start_time = time.time()
-        statement = select(Food)
-        food_entries = session.exec(statement).all()
-        hash_table_qp = HashTable()
-        description_map = defaultdict(list)
-        all_brands = set()
-        # description_map = dict()
-        for food in food_entries:
-            brand = food.brand
-            food_to_insert = FoodContainer(food.id,
-                                           food.description,
-                                           food.calories,
-                                           food.protein,
-                                           food.sugar,
-                                           food.brand)
-            hash_table_qp.insert(food.id, food_to_insert)
-            # fuzzy_search_string = food.description + ' ' + food.brand
-            description_map[food.description].append((food.brand, food.id))
-            all_brands.add(food.brand)
-        end_time = time.time()
-        print(f"size of hash table: {hash_table_qp.getSize()}")
-        print(f" size of description_to_id_map: {len(description_map)}")
-        print(f"time to read db & construct hash table: {end_time - start_time}")
-        return hash_table_qp, description_map, all_brands
     
 def populate_hash_table_qp() -> tuple[HashTable, float]:
     with Session(engine) as session:
